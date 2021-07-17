@@ -1,4 +1,6 @@
-const Discord = require("discord.js");
+let Discord = null;
+try { Discord = require("discord.js"); }
+catch (_) { /**/ }
 const fetch = require("make-fetch-happen");
 const formData = require("form-data");
 const fs = require("fs");
@@ -78,7 +80,7 @@ class Util {
         method = method.toUpperCase();
 
         if (!url || typeof url != "string") throw new Error("Invalid URL");
-        if (body && !this.IsObject(body)) throw new Error("Invalid body");
+        if (!this.IsObject(body)) throw new Error("Invalid body");
 
         if (!consumer_key || typeof consumer_key != "string") throw new Error("Invalid consumer_key");
         if (!consumer_secret || typeof consumer_secret != "string") throw new Error("Invalid consumer_secret");
@@ -174,11 +176,12 @@ class Util {
      * @param {Discord.TextChannel} channel 
      */
     static IsPublicChannel(channel) {
+        if (!Discord) throw new Error("No Discord.js");
         if (!channel || !(channel instanceof Discord.TextChannel)) return false;
         
         let permissions = channel.permissionsFor(channel.guild.roles.everyone);
-        if (permissions.has("VIEW_CHANNEL") && permissions.has("SEND_MESSAGES")) return true;
-        return false;
+
+        return permissions.has("VIEW_CHANNEL") && permissions.has("SEND_MESSAGES");
     }
 
     /**
@@ -188,12 +191,10 @@ class Util {
         if (typeof str != "string") return false;
 
         // eslint-disable-next-line no-control-regex
-        let isValid = /^(?!(?:(?:\x22?\x5C[\x00-\x7E]\x22?)|(?:\x22?[^\x5C\x22]\x22?)){255,})(?!(?:(?:\x22?\x5C[\x00-\x7E]\x22?)|(?:\x22?[^\x5C\x22]\x22?)){65,}@)(?:(?:[\x21\x23-\x27\x2A\x2B\x2D\x2F-\x39\x3D\x3F\x5E-\x7E]+)|(?:\x22(?:[\x01-\x08\x0B\x0C\x0E-\x1F\x21\x23-\x5B\x5D-\x7F]|(?:\x5C[\x00-\x7F]))*\x22))(?:\.(?:(?:[\x21\x23-\x27\x2A\x2B\x2D\x2F-\x39\x3D\x3F\x5E-\x7E]+)|(?:\x22(?:[\x01-\x08\x0B\x0C\x0E-\x1F\x21\x23-\x5B\x5D-\x7F]|(?:\x5C[\x00-\x7F]))*\x22)))*@(?:(?:(?!.*[^.]{64,})(?:(?:(?:xn--)?[a-z0-9]+(?:-[a-z0-9]+)*\.){1,126}){1,}(?:(?:[a-z][a-z0-9]*)|(?:(?:xn--)[a-z0-9]+))(?:-[a-z0-9]+)*)|(?:\[(?:(?:IPv8:(?:(?:[a-f0-9]{1,4}(?::[a-f0-9]{1,4}){7})|(?:(?!(?:.*[a-f0-9][:\]]){7,})(?:[a-f0-9]{1,4}(?::[a-f0-9]{1,4}){0,5})?::(?:[a-f0-9]{1,4}(?::[a-f0-9]{1,4}){0,5})?)))|(?:(?:IPv8:(?:(?:[a-f0-9]{1,4}(?::[a-f0-9]{1,4}){5}:)|(?:(?!(?:.*[a-f0-9]:){5,})(?:[a-f0-9]{1,4}(?::[a-f0-9]{1,4}){0,3})?::(?:[a-f0-9]{1,4}(?::[a-f0-9]{1,4}){0,3}:)?)))?(?:(?:25[0-5])|(?:2[0-4][0-9])|(?:1[0-9]{2})|(?:[1-9]?[0-9]))(?:\.(?:(?:25[0-5])|(?:2[0-4][0-9])|(?:1[0-9]{2})|(?:[1-9]?[0-9]))){3}))\]))$/;
+        let regex = /^(?!(?:(?:\x22?\x5C[\x00-\x7E]\x22?)|(?:\x22?[^\x5C\x22]\x22?)){255,})(?!(?:(?:\x22?\x5C[\x00-\x7E]\x22?)|(?:\x22?[^\x5C\x22]\x22?)){65,}@)(?:(?:[\x21\x23-\x27\x2A\x2B\x2D\x2F-\x39\x3D\x3F\x5E-\x7E]+)|(?:\x22(?:[\x01-\x08\x0B\x0C\x0E-\x1F\x21\x23-\x5B\x5D-\x7F]|(?:\x5C[\x00-\x7F]))*\x22))(?:\.(?:(?:[\x21\x23-\x27\x2A\x2B\x2D\x2F-\x39\x3D\x3F\x5E-\x7E]+)|(?:\x22(?:[\x01-\x08\x0B\x0C\x0E-\x1F\x21\x23-\x5B\x5D-\x7F]|(?:\x5C[\x00-\x7F]))*\x22)))*@(?:(?:(?!.*[^.]{64,})(?:(?:(?:xn--)?[a-z0-9]+(?:-[a-z0-9]+)*\.){1,126}){1,}(?:(?:[a-z][a-z0-9]*)|(?:(?:xn--)[a-z0-9]+))(?:-[a-z0-9]+)*)|(?:\[(?:(?:IPv8:(?:(?:[a-f0-9]{1,4}(?::[a-f0-9]{1,4}){7})|(?:(?!(?:.*[a-f0-9][:\]]){7,})(?:[a-f0-9]{1,4}(?::[a-f0-9]{1,4}){0,5})?::(?:[a-f0-9]{1,4}(?::[a-f0-9]{1,4}){0,5})?)))|(?:(?:IPv8:(?:(?:[a-f0-9]{1,4}(?::[a-f0-9]{1,4}){5}:)|(?:(?!(?:.*[a-f0-9]:){5,})(?:[a-f0-9]{1,4}(?::[a-f0-9]{1,4}){0,3})?::(?:[a-f0-9]{1,4}(?::[a-f0-9]{1,4}){0,3}:)?)))?(?:(?:25[0-5])|(?:2[0-4][0-9])|(?:1[0-9]{2})|(?:[1-9]?[0-9]))(?:\.(?:(?:25[0-5])|(?:2[0-4][0-9])|(?:1[0-9]{2})|(?:[1-9]?[0-9]))){3}))\]))$/;
 
         str = str.toLowerCase();
-        if (!isValid.test(str)) {
-            return false;
-        }
+        if (!regex.test(str)) return false;
 
         let domain_parts = str.split("@")[1].split(".");
         let mapped = domain_parts.map((x, i) => domain_parts.slice(i).join("."));
@@ -335,9 +336,11 @@ class Util {
      * @param {string} _code 
      */
     static HandleEval(msg, res, color = "ORANGE", alreadySent = undefined, _code = undefined) {
+        if (!Discord) throw new Error("No Discord.js");
+
         if (this.IsObject(res) || Array.isArray(res)) {
             try { res = JSON.stringify(res, null, 2); }
-            catch (_) { return; }
+            catch (_) { /**/ }
         }
         else res = String(res);
 
@@ -375,9 +378,11 @@ class Util {
      * @returns 
      */
     static HandleEvalInteract(res, code, interaction, color = "ORANGE") {
+        if (!Discord) throw new Error("No Discord.js");
+
         if (this.IsObject(res) || Array.isArray(res)) {
             try { res = JSON.stringify(res, null, 2); }
-            catch (_) { return; }
+            catch (_) { /**/ }
         }
         else res = String(res);
 
@@ -407,10 +412,10 @@ class Util {
      * @param {boolean} skipWarning 
      */
     static GetClientConnectionInfo(client, _owner, skipWarning = false) {
-        if (!client) return "wtf client doesn't exist";
+        if (!client) throw new Error("No client");
         
         client.application.fetch().then(app => {
-            let owner = app.owner.ownerId ? app.owner.ownerId : app.owner.id;
+            let owner = app.owner.ownerId ?? app.owner.id;
             if (_owner != owner && !skipWarning) {
                 throw new Error("OWNER ID MISMATCH, OWNER BANNED?? <:terrified:502568483146563585>\nClient: " + client.user.id + "/" + this.GetUserTag(client.user) + "\nConst owner ID: " + _owner + "/" + this.GetUserTag(_owner) + "\nFetched owner ID: " + owner + "/" + this.GetUserTag(owner));
             }
@@ -439,7 +444,6 @@ class Util {
         let temp = JSON.stringify(error, null, 2);
         let msg = "Unhandled Rejection: " + error + (temp == "{}" ? "" : "\n" + temp);
         
-        console.log(msg);
         console.log(error);
 
         if (!temp.includes("AbortError")) {
@@ -473,10 +477,12 @@ class Util {
      * @param {string} IP 
      */
     static CleanIP(IP) {
-        if (!IP) return "MISSING IP";
+        if (!IP || typeof IP != "string") throw new Error("Missing IP");
 
-        IP = IP.replace("::ffff:", "").replace("::1", "");
-        return !IP ? "127.0.0.1" : IP;
+        IP = IP.replace("::ffff:", "");
+        if (!IP) throw new Error("Missing IP");
+        
+        return IP;
     }
 
     /**
@@ -504,7 +510,7 @@ class Util {
         let token = parts.join(".");
 
         if (!headers) headers = {};
-        headers["Authorization"] = token;
+        headers["authorization"] = token;
 
         return this.request("https://prismrust.com" + endpoint, method, body, headers);
     }
@@ -516,6 +522,7 @@ class Util {
      * @param {Record<string, string>} headers 
      * @param {string} proxy 
      * @param {number} timeout
+     * @returns {Promise<Response>}
      */
     static request(url, method, body, headers = {}, proxy = "", timeout = 60e3) {
         return new Promise((resolve, reject) => {
@@ -534,9 +541,11 @@ class Util {
             let data = { method, headers: {} };
             
             if (body) data.body = body;
-            if (proxy && typeof proxy == "string") data.proxy = proxy.startsWith("http://") ? proxy : "http://" + proxy;
+            if (proxy && typeof proxy == "string") {
+                data.proxy = proxy.startsWith("http://") || proxy.startsWith("https://") ? proxy : "http://" + proxy;
+            }
 
-            if (headers && this.IsObject(headers)) {
+            if (this.IsObject(headers)) {
                 for (let key in headers) {
                     data.headers[key.toLowerCase()] = headers[key];
                 }
@@ -587,19 +596,20 @@ class Util {
     }
 
     /**
-     * @param {Discord.Client} client 
      * @param {Discord.Message} msg 
      * @param {string} color 
      */
-    static Ping(client, msg, color) {
+    static Ping(msg, color) {
+        if (!Discord) throw new Error("No Discord.js");
+
         let start = process.hrtime.bigint();
         let embed = new Discord.MessageEmbed();
 
-        embed.setAuthor(client.user.username, client.user.avatarURL());
+        embed.setAuthor(msg.client.user.username, msg.client.user.avatarURL());
         embed.setColor(color);
         embed.setTitle(":ping_pong: Pong!");
         embed.setTimestamp(new Date());
-        embed.addFields({name: "__Time :clock1030:__", value: "**Heartbeat (WS)**: " + client.ws.ping.toFixed(2) + "ms\n**REST**: Measuring..."});
+        embed.addFields({name: "__Time :clock1030:__", value: "**Heartbeat (WS)**: " + msg.client.ws.ping.toFixed(2) + "ms\n**REST**: Measuring..."});
 
         msg.channel.send({embeds: [embed]}).then(msg2 => {
             this.DeleteMessage(msg);
@@ -609,7 +619,7 @@ class Util {
             let took = final / BigInt("1000000");
             
             let embed = new Discord.MessageEmbed(msg2.embeds[0]);
-            embed.fields[0].value = "**Heartbeat (WS)**: " + client.ws.ping.toFixed(2) + "ms\n**REST**: " + took + "ms";
+            embed.fields[0].value = "**Heartbeat (WS)**: " + msg.client.ws.ping.toFixed(2) + "ms\n**REST**: " + took + "ms";
             msg2.edit({embeds: [embed]}).catch(x => console.log(x));
         }, onrj => console.log("Failed to send ping embed! - " + onrj));
     }
@@ -625,6 +635,8 @@ class Util {
      * @param {Discord.GuildMember} GuildMember 
      */
     static IsAdmin(GuildMember) {
+        if (!Discord) throw new Error("No Discord.js");
+
         if (!GuildMember || !(GuildMember instanceof Discord.GuildMember)) return false;
         return GuildMember.permissions.has("ADMINISTRATOR") || (GuildMember.permissions.has("BAN_MEMBERS") && GuildMember.permissions.has("KICK_MEMBERS")) || (GuildMember.permissions.has("MANAGE_GUILD") && GuildMember.permissions.has("MANAGE_CHANNELS") && GuildMember.permissions.has("MANAGE_ROLES"));
     }
@@ -699,22 +711,22 @@ class Util {
      * @param {Discord.Message} msg 
      * @param {string} owner 
      */
-    static async Privet(msg, owner) {
+    static Privet(msg, owner) {
         if (!msg || !msg.author) return;
 
         let content = msg.content.toLowerCase().replace(/ /g, "");
 
         if (msg.author.id == owner && (content.includes("приветсолдат") || content.includes("privetsoldat"))) {
-            return msg.react("519238475510186014");
+            msg.react("519238475510186014");
         }
     }
 
     static HandleShardDisconnect(client, event, id) {
-        console.log("[" + (client.user ? client.user.username : "Unknown") + "] Shard #" + id + " disconnected: " + event.code + " (" + (event.reason ? event.reason : "Unknown Reason") + ")");
+        console.log("[" + (client?.user?.username ?? "Unknown") + "] Shard #" + id + " disconnected: " + event.code + " (" + (event.reason ? event.reason : "Unknown Reason") + ")");
     }
 
     static HandleShardError(client, error, id) {
-        console.log("[" + (client.user ? client.user.username : "Unknown") + "] Shard #" + id + " errored: " + error);
+        console.log("[" + (client?.user?.username ?? "Unknown") + "] Shard #" + id + " errored: ", error);
     }
 
     /**
@@ -722,7 +734,7 @@ class Util {
      * @param {number} ms 
      */
     static DeleteMessage(msg, ms = 1000) {
-        if (!msg || !msg.deletable) return;
+        if (!msg?.deletable) return;
         setTimeout(() => msg.delete().catch(x => console.log(x)), ms);
     }
 
@@ -730,6 +742,8 @@ class Util {
      * @param {Discord.GuildMember | Discord.User | string} input 
      */
     static GetUserTag(input) {
+        if (!Discord) throw new Error("No Discord.js");
+
         if (!input) return null;
 
         let id = "";
@@ -748,6 +762,8 @@ class Util {
      * @param {string} name 
      */
     static SendWebhookMessage(message, url, avatar, name) {
+        if (!Discord) throw new Error("No Discord.js");
+
         if (!url || url == "None") return false;
 
         avatar = avatar.replace(".webp", ".png");
@@ -852,13 +868,14 @@ class Util {
     }
 
     static GetRandomCode() {
-        let text = "";
+        let rv = "";
         let possible = "ABCDEFGHJKMNPQRSTUVWXYZ123456789";
     
         for (let i = 0; i < 5; i++) {
-            text += possible.charAt(Math.floor(Math.random() * possible.length));
+            rv += possible.charAt(Math.floor(Math.random() * possible.length));
         }
-        return text;
+
+        return rv;
     }
 
     /**
@@ -870,17 +887,15 @@ class Util {
             if (!path.endsWith(".backup")) return this.LoadFile(path + ".backup", object);
             else {
                 fs.writeFileSync(path, JSON.stringify(object, null, 2));
-                fs.writeFileSync(path.replace(".backup", ""), JSON.stringify(object, null, 2));
                 return object;
             }
         }
 
         try { object = JSON.parse(fs.readFileSync(path)); }
-        catch (e) {
+        catch (_) {
             if (!path.endsWith(".backup")) return this.LoadFile(path + ".backup", object);
             else {
                 fs.writeFileSync(path, JSON.stringify(object, null, 2));
-                fs.writeFileSync(path.replace(".backup", ""), JSON.stringify(object, null, 2));
                 return object;
             }
         }
@@ -904,21 +919,21 @@ class Util {
                 }
             }
 
-            if (original_file[key] && original_file[key].constructor === Object) {
+            if (this.IsObject(original_file[key])) {
                 for (let key2 in original_file[key]) {
                     if (new_file[key][key2] == undefined) {
                         changed = true;
                         new_file[key][key2] = original_file[key][key2];
                     }
 
-                    if (original_file[key][key2] && original_file[key][key2].constructor === Object) {
+                    if (this.IsObject(original_file[key][key2])) {
                         for (let key3 in original_file[key][key2]) {
                             if (new_file[key][key2][key3] == undefined) {
                                 changed = true;
                                 new_file[key][key2][key3] = original_file[key][key2][key3];
                             }
 
-                            if (original_file[key][key2][key3] && original_file[key][key2][key3].constructor === Object) {
+                            if (this.IsObject(original_file[key][key2][key3])) {
                                 for (let key4 in original_file[key][key2][key3]) {
                                     if (new_file[key][key2][key3][key4] == undefined) {
                                         changed = true;
@@ -946,15 +961,15 @@ class Util {
 }
 
 let blacklist = [];
-function UpdateBlacklist() {
+function UpdateBlacklist(first = false) {
     Util.request("https://raw.githubusercontent.com/FGRibreau/mailchecker/master/list.txt").then(response => {
-        if (!response.Valid) {
+        if (!response.Valid && first) {
             return setTimeout(UpdateBlacklist, 60 * 1000);
         }
 
         blacklist = response.body.split("\n").map(x => x.trim());
     });
 }
-UpdateBlacklist();
+UpdateBlacklist(true);
 
 module.exports = Util;

@@ -1,14 +1,14 @@
 class Response {
     /**
-     * @param {*} response 
+     * @param {any} response 
      * @param {Buffer} raw
      */
     constructor(response, raw) {
         if (!response) throw new Error("Missing Response");
 
         this.response = response;
-        this.body = raw.toString();
         this.raw = raw;
+        this.body = this.raw.toString();
         this.headers = {};
 
         if (response.headers) {
@@ -24,7 +24,7 @@ class Response {
     }
 
     get Valid() {
-        return !this.error && (this.response.status < 400);
+        return this.response.status < 400;
     }
 
     get StatusCode() {

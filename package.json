@@ -1,6 +1,6 @@
 {
   "name": "prism-util",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Utils for all sorts of stuff",
   "main": "index.js",
   "scripts": {},
@@ -8,7 +8,6 @@
   "author": "MBR-0001",
   "license": "ISC",
   "dependencies": {
-    "discord.js": "github:discordjs/discord.js",
     "form-data": "^4.0.0",
     "make-fetch-happen": "^9.0.4",
     "validator": "^13.6.0"
