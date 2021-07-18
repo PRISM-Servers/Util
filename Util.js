@@ -734,7 +734,7 @@ class Util {
      * @param {number} ms 
      */
     static DeleteMessage(msg, ms = 1000) {
-        if (!msg?.deletable) return;
+        if (!msg?.deletable || msg?.deleted) return;
         setTimeout(() => msg.delete().catch(x => console.log(x)), ms);
     }
 
