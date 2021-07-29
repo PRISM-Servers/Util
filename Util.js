@@ -177,7 +177,7 @@ class Util {
      */
     static IsPublicChannel(channel) {
         if (!Discord) throw new Error("No Discord.js");
-        if (!channel || !(channel instanceof Discord.TextChannel)) return false;
+        if (!channel || (!(channel instanceof Discord.TextChannel) && !(channel instanceof Discord.ThreadChannel))) return false;
         
         let permissions = channel.permissionsFor(channel.guild.roles.everyone);
 
