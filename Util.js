@@ -87,7 +87,7 @@ class Util {
         if (!access_token || typeof access_token != "string") throw new Error("Invalid access_token");
         if (!access_token_secret || typeof access_token_secret != "string") throw new Error("Invalid access_token_secret");
         
-        const timestamp = Math.round(Date.now() / 1000);
+        const timestamp = Math.round(Date.now() / 1000).toString();
         const crypto = require("crypto");
         const nonce = crypto.createHash("md5").update(timestamp.toString()).digest("hex");
     
@@ -105,7 +105,9 @@ class Util {
 
         //encode key & value
         let temp = {};
-        for (let key in oauth_parts) temp[this.fixedEncodeURIComponent(key)] = this.fixedEncodeURIComponent(oauth_parts[key]);
+        for (let key in oauth_parts) {
+            temp[this.fixedEncodeURIComponent(key)] = this.fixedEncodeURIComponent(oauth_parts[key]);
+        }
         oauth_parts = temp;
     
         //sort by key
