@@ -774,7 +774,7 @@ class Util {
 
         if (split.length < 2) return false;
 
-        let client = new Discord.WebhookClient(split[0], split[1]);
+        let client = new Discord.WebhookClient({url});
         if (typeof message == "string") {
             for (let msg of Discord.Util.splitMessage(message, {maxLength: 1980})) {
                 client.send(msg, {avatarURL: avatar, username: name}).catch(x => console.log(x));
