@@ -769,8 +769,8 @@ class Util {
         if (!url || url == "None") return false;
 
         avatar = avatar.replace(".webp", ".png");
-        url = url.replace("https://discord.com/api/webhooks/", "");
-        let split = url.split("/");
+        let _url = url.replace("https://discord.com/api/webhooks/", "");
+        let split = _url.split("/");
 
         if (split.length < 2) return false;
 
