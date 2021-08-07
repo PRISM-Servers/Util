@@ -446,7 +446,7 @@ class Util {
         let temp = JSON.stringify(error, null, 2);
         let msg = "Unhandled Rejection: " + error + (temp == "{}" ? "" : "\n" + temp);
         
-        temp += "\n" + (error instanceof Error ? error.stack : new Error().stack);
+        msg += "\n" + (error instanceof Error ? error.stack : new Error().stack);
 
         console.log(error);
 
