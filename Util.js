@@ -446,6 +446,8 @@ class Util {
         let temp = JSON.stringify(error, null, 2);
         let msg = "Unhandled Rejection: " + error + (temp == "{}" ? "" : "\n" + temp);
         
+        msg += "\n" + (error instanceof Error ? error.stack : new Error().stack);
+
         console.log(error);
 
         if (!temp.includes("AbortError")) {
@@ -777,11 +779,11 @@ class Util {
         let client = new Discord.WebhookClient({url});
         if (typeof message == "string") {
             for (let msg of Discord.Util.splitMessage(message, {maxLength: 1980})) {
-                client.send(msg, {avatarURL: avatar, username: name}).catch(x => console.log(x));
+                client.send({content: msg, avatarURL: avatar, username: name}).catch(x => console.log(x));
             }
         }
 
-        else client.send({ embeds: [message], avatarURL: avatar, username: name }).catch(x => console.log(x));
+        else client.send({embeds: [message], avatarURL: avatar, username: name}).catch(x => console.log(x));
         return true;
     }
 
