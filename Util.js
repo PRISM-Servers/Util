@@ -42,7 +42,7 @@ class Util {
     }
 
     static IsObject(o) {
-        if (Array.isArray(o)) return false;
+        if (typeof o !== "object" || Array.isArray(o)) return false;
         return o === Object(o);
     }
 
