@@ -220,17 +220,6 @@ class Util {
     }
 
     /**
-     * @param {string} str 
-     * @param {string} search 
-     * @param {string} replacement 
-     */
-    static ReplaceAll(str, search, replacement) {
-        if (!str || search == undefined || replacement == undefined) return str;
-
-        return str.replace(new RegExp(this.EscapeRegexExp(search), "g"), replacement);
-    }
-
-    /**
      * @param {string} host 
      */
     static GetCertExpirationDays(host) {
@@ -271,15 +260,6 @@ class Util {
                 resolve(days);
             });
         });
-    }
-
-    /**
-     * @param {string} str 
-     */
-    static EscapeRegexExp(str) {
-        if (str == undefined) return str;
-
-        return str.replace(/([.*+?^=!:${}()|[]\/\\])/g, "\\$1");
     }
 
     /**

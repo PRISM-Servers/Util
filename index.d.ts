@@ -11,8 +11,6 @@ export function IsPublicChannel(channel: Discord.TextChannel): boolean;
 export function SortByValues<T>(o: T): T;
 export function Base64Encode(str: string): string;
 export function ParseGameTags(o: string): GameTags;
-export function ReplaceAll(str: string, search: string, replacement: string): string;
-export function EscapeRegexExp(str: string): string;
 export function fixedEncodeURIComponent(str: string): string;
 export function LogRejection(error: Error, client: Discord.Client): void;
 export function LogException(error: Error | string, client: Discord.Client): void;
