@@ -20,8 +20,16 @@ Array.prototype.remove = function(...item) {
     return false;
 };
 
+Array.prototype.random = function() {
+    return this[Math.floor(this.length * Math.random())];
+};
+
 Array.prototype.last = function() {
     return this[this.length - 1];
+};
+
+Array.prototype.distinct = function() {
+    return this.filter((x, i) => this.indexOf(x) == i);
 };
 
 String.prototype.reverse = function() {
