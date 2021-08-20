@@ -1,4 +1,6 @@
-const Util = require("./Util");
+let Util;
+//cyclic dependencies :weary:
+setTimeout(() => Util = require("./Util"), 0);
 
 class Time {
     constructor() {
