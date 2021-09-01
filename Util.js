@@ -1,7 +1,19 @@
 let Discord = null;
 try { Discord = require("discord.js"); }
 catch (_) { /**/ }
-let fetch = null;
+const formData = require("form-data");
+const fs = require("fs");
+const Response = require("./Response");
+const Time = require("./Time");
+const validator = require("validator");
+
+const pending = [];
+let fetch = (...args) => {
+    return new Promise((resolve, reject) => {
+        pending.push({args, resolve, reject});
+    });
+}
+
 import("node-fetch").then(d => {
     fetch = d.default;
     for (let key in d) {
@@ -9,12 +21,11 @@ import("node-fetch").then(d => {
             fetch[key] = d[key];
         }
     }
+
+    for (let item of pending) {
+        fetch(...item.args).then(item.resolve).catch(item.reject);
+    }
 }).catch(console.log);
-const formData = require("form-data");
-const fs = require("fs");
-const Response = require("./Response");
-const Time = require("./Time");
-const validator = require("validator");
 
 class Util {
     constructor() {
@@ -973,12 +984,10 @@ class Util {
 }
 
 let blacklist = [];
-setTimeout(() => {
-    Util.request("https://raw.githubusercontent.com/FGRibreau/mailchecker/master/list.txt").then(response => {
-        if (!response.Valid) return;
-
+Util.request("https://raw.githubusercontent.com/FGRibreau/mailchecker/master/list.txt").then(response => {
+    if (response.Valid) {
         blacklist = response.body.split("\n").map(x => x.trim());
-    });
-}, 1e3);
+    }
+});
 
 module.exports = Util;
