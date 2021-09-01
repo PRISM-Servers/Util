@@ -1,7 +1,15 @@
 let Discord = null;
 try { Discord = require("discord.js"); }
 catch (_) { /**/ }
-const fetch = require("make-fetch-happen");
+let fetch = null;
+import("node-fetch").then(d => {
+    fetch = d.default;
+    for (let key in d) {
+        if (key != "default") {
+            fetch[key] = d[key];
+        }
+    }
+}).catch(console.log);
 const formData = require("form-data");
 const fs = require("fs");
 const Response = require("./Response");
@@ -16,9 +24,9 @@ class Util {
     static #ip = "";
 
     static get HOST_IP() {
-        const os = require("os");
-
         if (this.#ip) return this.#ip;
+
+        const os = require("os");
 
         for (const iface of Object.values(os.networkInterfaces())) {
             for (const item of iface) {
@@ -285,7 +293,7 @@ class Util {
             fs.writeFileSync(path, JSON.stringify(file, null, 2));
         }
 
-        catch (ex) {
+        catch (_) {
             setTimeout(() => this.SaveFile(path, file, attempts + 1), 1000 * 2.5);
         }
     }
@@ -501,14 +509,13 @@ class Util {
 
     /**
      * @param {string} url 
-     * @param {"GET" | "POST" | "PUT" | "PATCH" | "DELETE"} method 
+     * @param {"GET" | "HEAD" | "POST" | "PUT" | "PATCH" | "DELETE"} method 
      * @param {any} body 
-     * @param {Record<string, string>} headers 
-     * @param {string} proxy 
+     * @param {Record<string, string>} headers
      * @param {number} timeout
-     * @returns {Promise<Response>}
+     * @returns {Promise<fetch.Response>}
      */
-    static request(url, method, body, headers = {}, proxy = "", timeout = 60e3) {
+    static requestRaw(url, method, body, headers = {}, timeout = 60e3) {
         return new Promise((resolve, reject) => {
             if (!url || typeof url != "string") return reject(new Error("Invalid URL"));
 
@@ -519,22 +526,21 @@ class Util {
             
             method = method.toUpperCase();
 
-            if (!["GET", "POST", "PUT", "PATCH", "DELETE"].includes(method)) return reject(new Error("Invalid method"));
+            if (!["GET", "HEAD", "POST", "PUT", "PATCH", "DELETE"].includes(method)) return reject(new Error("Invalid method"));
             if (!url.startsWith("http://") && !url.startsWith("https://")) return reject(new Error("Invalid URL"));
 
             let data = { method, headers: {} };
             
             if (body) data.body = body;
-            if (proxy && typeof proxy == "string") {
-                data.proxy = proxy.startsWith("http://") || proxy.startsWith("https://") ? proxy : "http://" + proxy;
-            }
 
             if (this.IsObject(headers)) {
                 for (let key in headers) {
+                    if (typeof headers[key] != "string") {
+                        return reject(new Error("Invalid header '" + key + "' value"));
+                    }
                     data.headers[key.toLowerCase()] = headers[key];
                 }
             }
-            else data.headers = {};
 
             if (!("user-agent" in data.headers)) {
                 data.headers["user-agent"] = "PRISM Utils/2.1";
@@ -554,18 +560,40 @@ class Util {
                     data.headers["content-type"] = "text/plain";
                 }
 
-                else return reject(new Error("Invalid body type"));
+                else return reject(new Error("Could not determine body content-type"));
             }
 
-            let timer = setTimeout(() => reject(new Error("Timed Out")), timeout);
+            let ac = new AbortController();
+            let timer = setTimeout(() => ac.abort(), timeout);
 
-            fetch(url, data).then(async response => {
+            data.signal = ac.signal;
+
+            fetch(url, data).then(resolve).catch(x => {
+                if (x instanceof fetch.AbortError) {
+                    reject(new Error("Timed out after " + timeout + " ms"));
+                }
+                else reject(x);
+            }).finally(() => clearTimeout(timer));
+        });
+    }
+
+    /**
+     * @param {string} url 
+     * @param {"GET" | "HEAD" | "POST" | "PUT" | "PATCH" | "DELETE"} method 
+     * @param {any} body 
+     * @param {Record<string, string>} headers
+     * @param {number} timeout
+     * @returns {Promise<Response>}
+     */
+    static request(url, method, body, headers, timeout) {
+        return new Promise((resolve, reject) => {
+            this.requestRaw(url, method, body, headers, timeout).then(async response => {
                 try {
                     const buff = await response.arrayBuffer();
-                    return resolve(new Response(response, Buffer.from(buff)));
+                    resolve(new Response(response, Buffer.from(buff)));
                 }
-                catch (ex) { return reject(ex); }
-            }).catch(reject).finally(() => clearTimeout(timer));
+                catch (e) { reject(e); }
+            }).catch(reject);
         });
     }
 
@@ -604,7 +632,7 @@ class Util {
             
             let embed = new Discord.MessageEmbed(msg2.embeds[0]);
             embed.fields[0].value = "**Heartbeat (WS)**: " + msg.client.ws.ping.toFixed(2) + "ms\n**REST**: " + took + "ms";
-            msg2.edit({embeds: [embed]}).catch(x => console.log(x));
+            msg2.edit({embeds: [embed]}).catch(console.log);
         }, onrj => console.log("Failed to send ping embed! - " + onrj));
     }
 
@@ -696,7 +724,7 @@ class Util {
      * @param {string} owner 
      */
     static Privet(msg, owner) {
-        if (!msg || !msg.author) return;
+        if (!msg?.author) return;
 
         let content = msg.content.toLowerCase().replace(/ /g, "");
 
@@ -719,7 +747,7 @@ class Util {
      */
     static DeleteMessage(msg, ms = 1000) {
         if (!msg?.deletable || msg?.deleted) return;
-        setTimeout(() => msg.delete().catch(x => console.log(x)), ms);
+        setTimeout(() => msg.delete().catch(console.log), ms);
     }
 
     /**
@@ -759,11 +787,11 @@ class Util {
         let client = new Discord.WebhookClient({url});
         if (typeof message == "string") {
             for (let msg of Discord.Util.splitMessage(message, {maxLength: 1980})) {
-                client.send({content: msg, avatarURL: avatar, username: name}).catch(x => console.log(x));
+                client.send({content: msg, avatarURL: avatar, username: name}).catch(console.log);
             }
         }
 
-        else client.send({embeds: [message], avatarURL: avatar, username: name}).catch(x => console.log(x));
+        else client.send({embeds: [message], avatarURL: avatar, username: name}).catch(console.log);
         return true;
     }
 
@@ -945,15 +973,12 @@ class Util {
 }
 
 let blacklist = [];
-function UpdateBlacklist(first = false) {
+setTimeout(() => {
     Util.request("https://raw.githubusercontent.com/FGRibreau/mailchecker/master/list.txt").then(response => {
-        if (!response.Valid && first) {
-            return setTimeout(UpdateBlacklist, 60 * 1000);
-        }
+        if (!response.Valid) return;
 
         blacklist = response.body.split("\n").map(x => x.trim());
     });
-}
-UpdateBlacklist(true);
+}, 1e3);
 
 module.exports = Util;
