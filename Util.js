@@ -8,7 +8,7 @@ const Time = require("./Time");
 const validator = require("validator");
 
 const pending = [];
-const fetch = (...args) => {
+let fetch = (...args) => {
     return new Promise((resolve, reject) => {
         pending.push({args, resolve, reject});
     });
