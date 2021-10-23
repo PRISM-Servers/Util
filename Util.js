@@ -90,12 +90,15 @@ class Util {
      * 
      * Example:
      * ```
+     * Util.FillDateRecord(src, a => Util.Time.MonthAndDayFromDate(a) + "Z", (source, a) => source[Util.Time.MonthAndDayFromDate(a) + "Z"] ?? -1, "day")
+     * //Input
      * {
      *   '2021-5-5Z': 1,
      *   '2021-5-10Z': 2,
      *   '2021-5-11Z': 3,
      *   '2021-5-13Z': 4
      * }
+     * //Output
      * {
      *   '2021-5-5Z': 1,
      *   '2021-5-6Z': -1,
@@ -108,11 +111,15 @@ class Util {
      *   '2021-5-13Z': 4
      * }
      * ```
+     * 
+     * Last param determines whether days months or years will be filled
+     * 
      * @param {Record<string, any>} source
      * @param {(date: Date) => {}} keyFn
      * @param {(source: Record<string, any>, date: Date) => {}} valueFn
+     * @param {"day" | "month" | "year"} mode
      */
-    static FillDateRecord(source, keyFn, valueFn) {
+    static FillDateRecord(source, keyFn, valueFn, mode = "day") {
         if (!Util.IsObject(source)) return null;
         if (typeof keyFn != "function" || typeof valueFn != "function") {
             throw new Error("Invalid keyFn/valueFn, needs to be a function");
@@ -127,7 +134,7 @@ class Util {
 
         const rv = {};
     
-        for (const date = new Date(keys[0]); date <= last; date.setDate(date.getDate() + 1)) {
+        for (const date = new Date(keys[0]); date <= last; mode == "day" ? date.setDate(date.getDate() + 1) : mode == "month" ? date.setMonth(date.getMonth() + 1) : date.setFullYear(date.getFullYear() + 1)) {
             rv[keyFn(date)] = valueFn(source, date);
         }
 

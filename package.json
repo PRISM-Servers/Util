@@ -1,6 +1,6 @@
 {
   "name": "prism-util",
-  "version": "1.3.2",
+  "version": "1.3.3",
   "description": "Utils for all sorts of stuff",
   "main": "index.js",
   "scripts": {},
