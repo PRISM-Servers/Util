@@ -21,6 +21,17 @@ class Time {
     }
 
     /**
+     * @param {string | Date} val
+     */
+    static isValidDate(val) {
+        if (typeof val == "string") {
+            return !isNaN(new Date(val).getTime());
+        }
+
+        return val instanceof Date && !isNaN(val.getTime());
+    }
+
+    /**
      * @param {Date} date 
      */
     static formatDate(date) {
@@ -119,7 +130,7 @@ class Time {
         if (typeof date1 == "string") date1 = new Date(date1);
         if (typeof date2 == "string") date2 = new Date(date2);
 
-        if (date1 == "Invalid Date" || date2 == "Invalid Date") return "Unknown";
+        if (!this.isValidDate(date1) || !this.isValidDate(date2)) return "Unknown";
 
         // Convert both dates to milliseconds
         let date1_ms = date1.getTime();

@@ -54,7 +54,6 @@ export function ObjectToUrlencoded<T>(object: T): string;
 export function IsValidJSON(str: string): boolean;
 export function IsValidEmail(str: string): boolean;
 export function NormalizeNumber(num: number): string;
-export function IncreaseFromTimespan(input: string, limited?: boolean, date?: Date): Date | string | null;
 
 export type HTTP_Method = "GET" | "POST" | "DELETE" | "PATCH" | "PUT";
 
@@ -68,6 +67,8 @@ export class Time {
     public static LogFormat(date?: Date): string;
     public static ShortFormat(date: Date): string;
     public static WipeDateString(date: Date): string;
+    public static isValidDate(val: string | Date): boolean;
+    public static IncreaseFromTimespan(input: string, limited?: boolean, date?: Date): Date | string | null;
 }
 
 export class Response {
