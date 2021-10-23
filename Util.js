@@ -8,21 +8,21 @@ const Time = require("./Time");
 const validator = require("validator");
 
 const pending = [];
-let fetch = (...args) => {
+const fetch = (...args) => {
     return new Promise((resolve, reject) => {
         pending.push({args, resolve, reject});
     });
-}
+};
 
 import("node-fetch").then(d => {
     fetch = d.default;
-    for (let key in d) {
+    for (const key in d) {
         if (key != "default") {
             fetch[key] = d[key];
         }
     }
 
-    for (let item of pending) {
+    for (const item of pending) {
         fetch(...item.args).then(item.resolve).catch(item.reject);
     }
 }).catch(console.log);
@@ -83,6 +83,55 @@ class Util {
                 resolve(response.body.trim());
             }).catch(reject);
         });
+    }
+
+    /**
+     * Fills a Date record with missing dates
+     * 
+     * Example:
+     * ```
+     * {
+     *   '2021-5-5Z': 1,
+     *   '2021-5-10Z': 2,
+     *   '2021-5-11Z': 3,
+     *   '2021-5-13Z': 4
+     * }
+     * {
+     *   '2021-5-5Z': 1,
+     *   '2021-5-6Z': -1,
+     *   '2021-5-7Z': -1,
+     *   '2021-5-8Z': -1,
+     *   '2021-5-9Z': -1,
+     *   '2021-5-10Z': 2,
+     *   '2021-5-11Z': 3,
+     *   '2021-5-12Z': -1,
+     *   '2021-5-13Z': 4
+     * }
+     * ```
+     * @param {Record<string, any>} source
+     * @param {(date: Date) => {}} keyFn
+     * @param {(source: Record<string, any>, date: Date) => {}} valueFn
+     */
+    static FillDateRecord(source, keyFn, valueFn) {
+        if (!Util.IsObject(source)) return null;
+        if (typeof keyFn != "function" || typeof valueFn != "function") {
+            throw new Error("Invalid keyFn/valueFn, needs to be a function");
+        }
+
+        const keys = Object.keys(source);
+        const last = new Date(keys.last());
+
+        if (!Util.Time.isValidDate(keys[0]) || !Util.Time.isValidDate(last)) {
+            throw new Error("Invalid start/end date");
+        }
+
+        const rv = {};
+    
+        for (const date = new Date(keys[0]); date <= last; date.setDate(date.getDate() + 1)) {
+            rv[keyFn(date)] = valueFn(source, date);
+        }
+
+        return rv;
     }
 
     /**
