@@ -556,8 +556,9 @@ class Util {
      * @param {"GET" | "POST" | "PUT" | "PATCH" | "DELETE"} method 
      * @param {any} body 
      * @param {Record<string, string>} headers 
+     * @param {number} timeout
      */
-    static APIrequest(endpoint, method, body, headers) {
+    static APIrequest(endpoint, method, body, headers, timeout) {
         if (!endpoint || typeof endpoint != "string") return Promise.reject(new Error("Invalid endpoint"));
         if (!process.env.INTERNAL_API_TOKEN) return Promise.reject(new Error("No API token"));
 
@@ -571,7 +572,7 @@ class Util {
         if (!headers) headers = {};
         headers["authorization"] = token;
 
-        return this.request("https://prismrust.com" + endpoint, method, body, headers);
+        return this.request("https://prismrust.com" + endpoint, method, body, headers, timeout);
     }
 
     /**
