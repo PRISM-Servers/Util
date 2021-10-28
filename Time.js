@@ -104,17 +104,6 @@ class Time {
 
     /**
      * @param {Date} date 
-     * @param {string} separator 
-     */
-    static YMDN(date, separator = "-") {
-        if (!date) date = new Date();
-        if (!(date instanceof Date)) date = new Date();
-
-        return this.format(["YYYY", "MM", "DD"].join(separator), date, true);
-    }
-
-    /**
-     * @param {Date} date 
      */
     static LogFormat(date) {
         if (!date) date = new Date();
