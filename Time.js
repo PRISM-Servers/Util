@@ -1,10 +1,56 @@
 let Util;
-//cyclic dependencies :weary:
 setTimeout(() => Util = require("./Util"), 0);
 
 class Time {
     constructor() {
         throw new Error("This class cannot be instantiated!");
+    }
+
+    /**
+     * @param {string} format
+     * @param {Date} date
+     */
+    static format(format, date, utc = false) {
+        if (!(date instanceof Date) || !this.isValidDate(date)) {
+            throw new Error("Invalid date");
+        }
+
+        let rv = format;
+        rv = rv.replace(/YYYY/g, utc ? date.getUTCFullYear() : date.getFullYear());
+        rv = rv.replace(/YY/g, (utc ? date.getUTCFullYear() : date.getFullYear()).toString().substr(2, 4));
+
+        const month = utc ? date.getUTCMonth() : date.getMonth();
+        rv = rv.replace(/MONTH/g, ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"][month]);
+        rv = rv.replace(/MON/g, ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"][month]);
+        rv = rv.replace(/MM/g, (month + 1).toString().padStart(2, "0"));
+        rv = rv.replace(/M/g, month + 1);
+
+        const day = utc ? date.getUTCDate() : date.getDate();
+        rv = rv.replace(/FDAY/g, ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"][day]);
+        rv = rv.replace(/DAY/g, ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"][day]);
+        rv = rv.replace(/DI/g, day + [undefined, "st", "nd", "rd"][day / 10 % 10 ^ 1 && day % 10] || "th");
+        rv = rv.replace(/DD/g, day.toString().padStart(2, "0"));
+        rv = rv.replace(/D/g, day);
+
+        const hour = utc ? date.getUTCHours() : date.getHours();
+        rv = rv.replace(/HH/g, hour.toString().padStart(2, "0"));
+        rv = rv.replace(/H/g, hour);
+
+        const hourP = hour == 0 ? 12 : hour < 12 ? hour : hour % 12;
+        rv = rv.replace(/hh/g, hourP.toString().padStart(2, "0"));
+        rv = rv.replace(/h/g, hourP);
+
+        rv = rv.replace(/AP/g, hour < 12 ? "AM" : "PM");
+
+        const minute = utc ? date.getUTCMinutes() : date.getMinutes();
+        rv = rv.replace(/mm/g, minute.toString().padStart(2, "0"));
+        rv = rv.replace(/m/g, minute);
+
+        const seconds = utc ? date.getUTCSeconds() : date.getSeconds();
+        rv = rv.replace(/SS/g, seconds.toString().padStart(2, "0"));
+        rv = rv.replace(/S/g, seconds);
+
+        return rv;
     }
 
     /**
@@ -49,11 +95,22 @@ class Time {
      * @param {Date} date 
      * @param {string} separator 
      */
-    static MonthAndDayFromDate(date, separator = "-") {
+    static YMD(date, separator = "-") {
         if (!date) date = new Date();
         if (!(date instanceof Date)) date = new Date();
 
         return date.getUTCFullYear() + separator + (date.getUTCMonth() + 1) + separator + date.getUTCDate();
+    }
+
+    /**
+     * @param {Date} date 
+     * @param {string} separator 
+     */
+    static YMDN(date, separator = "-") {
+        if (!date) date = new Date();
+        if (!(date instanceof Date)) date = new Date();
+
+        return this.format(["YYYY", "MM", "DD"].join(separator), date, true);
     }
 
     /**
