@@ -28,18 +28,18 @@ class Net {
         throw new Error("This class cannot be instantiated!");
     }
 
-    //static #ip = "";
+    static #ip = "";
 
     static get HOST_IP() {
-        //if (this.#ip) return this.#ip;
+        if (this.#ip) return this.#ip;
 
         const os = require("os");
 
         for (const iface of Object.values(os.networkInterfaces())) {
             for (const item of iface) {
                 if (item.family == "IPv4" && !item.internal) {
-                    //this.#ip = item.address;
-                    //return this.#ip;
+                    this.#ip = item.address;
+                    return this.#ip;
                 }
             }
         }
