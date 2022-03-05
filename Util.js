@@ -73,6 +73,7 @@ class Util {
 
         const keys = Object.keys(source);
         const last = new Date(keys.last());
+        last.setDate(last.getDate() + 1);
 
         if (!Util.Time.isValidDate(keys[0]) || !Util.Time.isValidDate(last)) {
             throw new Error("Invalid start/end date");
