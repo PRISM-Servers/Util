@@ -200,9 +200,9 @@ class Time {
 
     /**
      * @param {string} time 
-     * @returns {Date | string | null} parsed time as seconds
+     * @returns {Date | string | null} parsed time or error message
      */
-    static IncreaseFromTimespan(time, limited = false, date = new Date()) {
+    static increaseFromTimespan(time, limited = false, date = new Date()) {
         let pre = null;
         let current = new Date();
 
@@ -217,11 +217,13 @@ class Time {
             "apr": 3,
             "may": 4,
             "june": 5,
+            "jun": 5,
             "july": 6,
             "jul": 6,
             "august": 7,
             "aug": 7,
             "september": 8,
+            "sept": 8,
             "sep": 8,
             "october": 9,
             "oct": 9,
@@ -248,84 +250,44 @@ class Time {
             "saturday": 6
         };
 
-        if (!isNaN(time[0])) {
-            let num = "";
-            for (let letter of time) {
-                if (isNaN(letter)) break; 
-                else num += letter;
-            }
+        if (!isNaN(time[0]) || time[0] == ".") {
+            const dictionary = {
+                "year": 31536000,
+                "month": 2592000,
+                "week": 604800,
+                "day": 86400,
+                "hour": 3600,
+                "minute": 60,
+                "second": 1,
+                "yr": 31536000,
+                "y": 31536000,
+                "mon": 2592000,
+                "mo": 2592000,
+                "w": 604800,
+                "d": 86400,
+                "hr": 3600,
+                "h": 3600,
+                "min": 60,
+                "m": 60,
+                "sec": 1,
+                "s": 1
+            };
 
-            if (num && !isNaN(num)) {
-                time = time.replace(num, "");
-                let dictionary = {
-                    "year": "YEAR",
-                    "month": "MONTH",
-                    "week": "WEEK",
-                    "day": "DAY",
-                    "hour": "HOUR",
-                    "minute": "MINUTE",
-                    "second": "SECOND",
-                    "yr": "YEAR",
-                    "y": "YEAR",
-                    "mon": "MONTH",
-                    "mo": "MONTH",
-                    "w": "WEEK",
-                    "d": "DAY",
-                    "hr": "HOUR",
-                    "h": "HOUR",
-                    "min": "MINUTE",
-                    "m": "MINUTE",
-                    "sec": "SECOND",
-                    "s": "SECOND"
-                };
-
-                let found = dictionary[Object.keys(dictionary).find(x => x == time.toLowerCase() || x + "s" == time.toLowerCase())];
-                if (found) pre = {amount: Number(num), type: found};
+            const f = Object.keys(dictionary).find(x => time.endsWith(x));
+            if (f) {
+                const num = Number(time.replace(f, "").trim());
+                if (!isNaN(num)) {
+                    pre = num * dictionary[f];
+                    if (pre < 86400 && limited) {
+                        return "Minimum is 1 day";
+                    }
+                }
             }
         }
 
         if (pre) {
-            switch (pre.type) {
-                case "YEAR": {
-                    date.setUTCFullYear(date.getUTCFullYear() +  pre.amount);
-                    break;
-                }
-
-                case "MONTH": {
-                    date.setUTCMonth(date.getUTCMonth() +  pre.amount);
-                    break;
-                }
-
-                case "WEEK": {
-                    date.setUTCDate(date.getUTCDate() + (pre.amount * 7));
-                    break;
-                }
-
-                case "DAY": {
-                    date.setUTCDate(date.getUTCDate() + pre.amount);
-                    break;
-                }
-
-                case "HOUR": {
-                    if (limited) return "Minimum is 1 day";
-                    date.setUTCHours(date.getUTCHours() + pre.amount);
-                    break;
-                }
-
-                case "MINUTE": {
-                    if (limited) return "Minimum is 1 day";
-                    date.setUTCMinutes(date.getUTCMinutes() + pre.amount);
-                    break;
-                }
-
-                case "SECOND": {
-                    if (limited) return "Minimum is 1 day";
-                    date.setUTCSeconds(date.getUTCSeconds() + pre.amount);
-                    break;
-                }
-            }
+            date.setTime(date.getTime() + pre * 1000);
         }
-    
         else if (Object.keys(days).some(x => time.toLowerCase().startsWith(x))) {
             let day = days[Object.keys(days).find(x => time.toLowerCase().startsWith(x))];
         
@@ -338,10 +300,9 @@ class Time {
             }
             else date.setUTCDate(date.getUTCDate() + (day - current.getUTCDay()));
         }
-
-        else if (Object.keys(months).some(x => time.toLowerCase().startsWith(x)) && time.includes(" ")) {
+        else if (Object.keys(months).some(x => time.toLowerCase().startsWith(x))) {
             let month = months[Object.keys(months).find(x => time.toLowerCase().startsWith(x))];
-            let day = Number(time.split(" ")[1]);
+            let day = Number(time.split(" ")[1] || 1);
             if (isNaN(day) || day < 0) return null;
 
             if ((month == 1 && day > 28) || (([3, 5, 8, 10].includes(month) && day > 30) || ([0, 2, 4, 6, 7, 9, 11].includes(month) && day > 31))) {
