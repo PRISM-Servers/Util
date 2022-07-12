@@ -37,11 +37,11 @@ class Discord_ {
     /**
          * @param {Discord.GuildMember} GuildMember 
          */
-    static IsAdmin(GuildMember) {
+    static IsAdmin(guildMember) {
         if (!Discord) throw new Error("No Discord.js");
     
-        if (!GuildMember || !(GuildMember instanceof Discord.GuildMember)) return false;
-        return GuildMember.permissions.has("ADMINISTRATOR") || (GuildMember.permissions.has("BAN_MEMBERS") && GuildMember.permissions.has("KICK_MEMBERS")) || (GuildMember.permissions.has("MANAGE_GUILD") && GuildMember.permissions.has("MANAGE_CHANNELS") && GuildMember.permissions.has("MANAGE_ROLES"));
+        if (!guildMember || !(guildMember instanceof Discord.GuildMember)) return false;
+        return guildMember.permissions.has("ADMINISTRATOR") || (guildMember.permissions.has("BAN_MEMBERS") && guildMember.permissions.has("KICK_MEMBERS") && guildMember.permissions.has("MANAGE_GUILD") && guildMember.permissions.has("MANAGE_CHANNELS") && guildMember.permissions.has("MANAGE_ROLES"));
     }
     
     /**
