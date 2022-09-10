@@ -278,8 +278,8 @@ class Time {
                 const num = Number(time.replace(f, "").trim());
                 if (!isNaN(num)) {
                     pre = num * dictionary[f];
-                    if (pre < 86400 && limited) {
-                        return "Minimum is 1 day";
+                    if (pre < 7200 && limited) {
+                        return "Minimum is 2h";
                     }
                 }
             }
