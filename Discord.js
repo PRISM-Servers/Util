@@ -344,6 +344,11 @@ class Discord_ {
         
         let permissions = channel.permissionsFor(channel.guild.roles.everyone);
 
+        if (!permissions && channel.parent == undefined && channel.parentId != undefined) {
+            // TODO fix? threads
+            return true;
+        }
+
         return permissions.has("VIEW_CHANNEL") && permissions.has("SEND_MESSAGES");
     }
 
