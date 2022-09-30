@@ -160,7 +160,7 @@ class Util {
 
     static fixedEncodeURIComponent(str) {
         if (str == undefined || typeof str != "string") throw new Error("Invalid args");
-        return encodeURIComponent(str).replace(/[!'()*]/g, c => "%" + c.charCodeAt(0).toString(16));
+        return encodeURIComponent(str).replace(/[!'()*]/g, c => "%" + c.charCodeAt(0).toString(16).toUpperCase());
     }
 
     /**
