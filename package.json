@@ -2,14 +2,25 @@
   "name": "prism-util",
   "version": "3.3.0",
   "description": "Utils for all sorts of stuff",
-  "main": "index.js",
-  "scripts": {},
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "type": "module",
+  "scripts": {
+    "prepublish": "npm run build",
+    "build": "tsc"
+  },
   "keywords": [],
   "author": "MBR-0001",
   "license": "ISC",
   "dependencies": {
+    "discord.js": "^13.16.0",
     "form-data": "^4.0.0",
     "node-fetch": "^3.0.0",
     "validator": "^13.6.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.4.5",
+    "@types/validator": "^13.7.17",
+    "ts-node": "^10.9.1"
   }
 }

@@ -29,7 +29,7 @@ Array.prototype.last = function() {
 };
 
 Array.prototype.distinct = function() {
-    return this.filter((x, i) => this.indexOf(x) == i);
+    return this.filter((x: any, i: number) => this.indexOf(x) == i);
 };
 
 String.prototype.reverse = function() {

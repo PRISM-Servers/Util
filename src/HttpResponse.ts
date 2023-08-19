@@ -1,9 +1,11 @@
-class Response {
-    /**
-     * @param {any} response 
-     * @param {Buffer} raw
-     */
-    constructor(response, raw) {
+export default class HttpResponse<T> {
+    response: Response;
+    raw: Buffer;
+    body: string;
+    headers: Record<string, string>;
+    #_json?: T;
+
+    constructor(response: any, raw: Buffer) {
         if (!response) throw new Error("Missing Response");
 
         this.response = response;
@@ -18,7 +20,7 @@ class Response {
         }
 
         if (this.body) {
-            try { this._json = JSON.parse(this.body); }
+            try { this.#_json = JSON.parse(this.body); }
             catch (_) { /**/ }
         }
     }
@@ -40,8 +42,6 @@ class Response {
     }
 
     get json() {
-        return this._json;
+        return this.#_json;
     }
 }
-
-module.exports = Response;
