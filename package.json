@@ -1,6 +1,6 @@
 {
-  "name": "prism-util",
-  "version": "3.3.0",
+  "name": "prism-util-next",
+  "version": "4.0.0",
   "description": "Utils for all sorts of stuff",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
