@@ -1,3 +1,5 @@
+import { Response } from "node-fetch";
+
 export default class HttpResponse<T> {
     response: Response;
     raw: Buffer;

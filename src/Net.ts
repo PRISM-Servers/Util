@@ -1,7 +1,7 @@
 import FormData from "form-data";
 import HttpResponse from "./HttpResponse.js";
 import * as os from "os";
-import { AbortError } from "node-fetch";
+import fetch, { AbortError, BodyInit, RequestInit, Response } from "node-fetch";
 import { base64Encode, isObject, isValidJSON } from "./Util.js";
 import validator from "validator";
 import tls from "tls";
@@ -126,7 +126,7 @@ export function request<T>(url: string, method?: Method, body?: unknown, headers
         requestRaw(url, method, body, headers, timeout).then(async response => {
             try {
                 const buff = await response.arrayBuffer();
-                resolve(new HttpResponse(response, Buffer.from(buff)));
+                resolve(new HttpResponse<T>(response, Buffer.from(buff)));
             }
             catch (e) { reject(e); }
         }).catch(reject);
