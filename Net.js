@@ -236,7 +236,7 @@ class Net {
      * @param {string} ip 
      */
     static IsLocalhost(ip) {
-        return ip == "127.0.0.1" || ip == "::1" || ip == this.HOST_IP;
+        return ip == "127.0.0.1" || ip == "::1" || ip == this.HOST_IP || process.env.LOCALHOST_IPS?.includes(ip);
     }
 
     /**
