@@ -1,8 +1,8 @@
 import FormData from 'form-data'
-import HttpResponse from "./HttpResponse";
+import HttpResponse from "./HttpResponse.js";
 import * as os from "os";
 import { AbortError } from "node-fetch";
-import { base64Encode, isObject, isValidJSON } from "./Util";
+import { base64Encode, isObject, isValidJSON } from "./Util.js";
 import validator from "validator";
 
 export type Method = "GET" | "POST" | "PUT" | "PATCH" | "DELETE";

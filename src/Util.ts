@@ -1,7 +1,7 @@
 import FormData from 'form-data'
 import * as fs from 'fs';
-import { isValidDate } from "./Time";
-import { Method, request } from "./Net";
+import { isValidDate } from "./Time.js";
+import { Method, request } from "./Net.js";
 
 export function isSteamID(str: string) {
     if (!str || typeof str != "string") return false;

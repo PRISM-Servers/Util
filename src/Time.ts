@@ -1,4 +1,4 @@
-import { normalizeNumber } from "./Util";
+import { normalizeNumber } from "./Util.js";
 
 export function format(format: string, date: Date, utc = false) {
     if (!(date instanceof Date) || !this.isValidDate(date)) {
