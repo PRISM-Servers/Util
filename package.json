@@ -1,6 +1,6 @@
 {
   "name": "prism-util-next",
-  "version": "4.1.0",
+  "version": "4.1.1",
   "description": "Utils for all sorts of stuff",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -15,7 +15,7 @@
   "dependencies": {
     "discord.js": "^13.16.0",
     "form-data": "^4.0.0",
-    "node-fetch": "^3.0.0",
+    "node-fetch": "^3.3.2",
     "validator": "^13.6.0"
   },
   "devDependencies": {
