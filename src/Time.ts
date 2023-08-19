@@ -1,7 +1,7 @@
 import { normalizeNumber } from "./Util.js";
 
 export function format(format: string, date: Date, utc = false) {
-    if (!(date instanceof Date) || !this.isValidDate(date)) {
+    if (!(date instanceof Date) || !isValidDate(date)) {
         throw new Error("Invalid date");
     }
 
@@ -135,7 +135,7 @@ export function daysBetween(date1: Date, date2: Date, short = false) {
     if (typeof date1 == "string") date1 = new Date(date1);
     if (typeof date2 == "string") date2 = new Date(date2);
 
-    if (!this.isValidDate(date1) || !this.isValidDate(date2)) return "Unknown";
+    if (!isValidDate(date1) || !isValidDate(date2)) return "Unknown";
 
     // Convert both dates to milliseconds
     const date1_ms = date1.getTime();
@@ -144,7 +144,7 @@ export function daysBetween(date1: Date, date2: Date, short = false) {
     // Calculate the difference in milliseconds
     const difference_ms = Math.abs(date2_ms - date1_ms);
 
-    return this.GetTimeSpanFromMs(difference_ms, short);
+    return getTimeSpanFromMs(difference_ms, short);
 }
 
 export function shortFormat(date: Date) {

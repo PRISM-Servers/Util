@@ -121,7 +121,7 @@ export function isValidEmail(str: string) {
 }
 
 export function objectToForm(object: object) {
-    if (!this.IsObject(object)) return null;
+    if (!isObject(object)) return null;
 
     const form = new FormData();
     // @ts-expect-error error
@@ -131,10 +131,10 @@ export function objectToForm(object: object) {
 }
 
 export function objectToUrlencoded(object: object) {
-    if (!this.IsObject(object)) return null;
+    if (!isObject(object)) return null;
 
     // @ts-expect-error error
-    return Object.keys(object).map(x => this.fixedEncodeURIComponent(x) + "=" + this.fixedEncodeURIComponent(object[x])).join("&");
+    return Object.keys(object).map(x => fixedEncodeURIComponent(x) + "=" + fixedEncodeURIComponent(object[x])).join("&");
 }
 
 export function removeDuplicates<T>(arr: T[]) {
@@ -154,7 +154,7 @@ export function saveFile(path: string, file: unknown, attempts: number = 0) {
     }
 
     catch (_) {
-        setTimeout(() => this.SaveFile(path, file, attempts + 1), 1000 * 2.5);
+        setTimeout(() => saveFile(path, file, attempts + 1), 1000 * 2.5);
     }
 }
 
@@ -260,21 +260,21 @@ export function validateFile(original_file: any, new_file: any) {
             }
         }
 
-        if (this.IsObject(original_file[key])) {
+        if (isObject(original_file[key])) {
             for (const key2 in original_file[key]) {
                 if (new_file[key][key2] == undefined) {
                     changed = true;
                     new_file[key][key2] = original_file[key][key2];
                 }
 
-                if (this.IsObject(original_file[key][key2])) {
+                if (isObject(original_file[key][key2])) {
                     for (const key3 in original_file[key][key2]) {
                         if (new_file[key][key2][key3] == undefined) {
                             changed = true;
                             new_file[key][key2][key3] = original_file[key][key2][key3];
                         }
 
-                        if (this.IsObject(original_file[key][key2][key3])) {
+                        if (isObject(original_file[key][key2][key3])) {
                             for (const key4 in original_file[key][key2][key3]) {
                                 if (new_file[key][key2][key3][key4] == undefined) {
                                     changed = true;

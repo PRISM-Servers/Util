@@ -1,6 +1,7 @@
 import * as Discord from "discord.js";
 import { getArgsFromMessage, isObject, isValidJSON } from "./Util.js";
 import { logFormat } from "./Time.js";
+import { User } from "discord.js";
 
 export function Ping(msg: Discord.Message, color: Discord.ColorResolvable) {
     const start = process.hrtime.bigint();
@@ -13,7 +14,7 @@ export function Ping(msg: Discord.Message, color: Discord.ColorResolvable) {
     embed.addFields({name: "__Time :clock1030:__", value: "**Heartbeat (WS)**: " + msg.client.ws.ping.toFixed(2) + "ms\n**REST**: Measuring..."});
 
     msg.channel.send({embeds: [embed]}).then(msg2 => {
-        this.DeleteMessage(msg);
+        DeleteMessage(msg);
 
         const end = process.hrtime.bigint();
         const final = end - start;
@@ -76,8 +77,8 @@ export function GetMessageResponse(msg: Discord.Message, time: number = 15 * 100
 
         collector.on("end", (collected, reason) => {
             if (cleanup) {
-                collected.each(msg => this.DeleteMessage(msg));
-                this.DeleteMessage(sent);
+                collected.each(msg => DeleteMessage(msg));
+                if (sent) DeleteMessage(sent);
             }
 
             if (reason != "success") reject(reason);
@@ -108,7 +109,7 @@ export function DeleteMessage(msg: Discord.Message, ms: number = 1000) {
     setTimeout(() => msg.delete().catch(console.log), ms);
 }
 
-export function GetUserTag(input: Discord.GuildMember | Discord.User | string) {
+export function GetUserTag(input?: Discord.GuildMember | Discord.User | string | null) {
     if (!input) return null;
 
     let id = "";
@@ -216,7 +217,7 @@ export function GetClientConnectionInfo(client: Discord.Client, _owner?: string,
     client.application?.fetch().then(app => {
         const owner = app.owner instanceof Discord.Team ? app.owner.ownerId : app.owner?.id;
         if (_owner != owner && !skipWarning) {
-            throw new Error("OWNER ID MISMATCH, OWNER BANNED?? <:terrified:502568483146563585>\nClient: " + client.user?.id + "/" + this.GetUserTag(client.user) + "\nConst owner ID: " + _owner + "/" + this.GetUserTag(_owner) + "\nFetched owner ID: " + owner + "/" + this.GetUserTag(owner));
+            throw new Error("OWNER ID MISMATCH, OWNER BANNED?? <:terrified:502568483146563585>\nClient: " + client.user?.id + "/" + GetUserTag(client.user as User) + "\nConst owner ID: " + _owner + "/" + GetUserTag(_owner) + "\nFetched owner ID: " + owner + "/" + GetUserTag(owner));
         }
     });
 
@@ -226,7 +227,7 @@ export function GetClientConnectionInfo(client: Discord.Client, _owner?: string,
 export function HandleRateLimit(client: Discord.Client, data: Discord.RateLimitData, webhook: string) {
     if (data.path.includes("/reactions/")) return;
     
-    this.SendWebhookMessage("[" + ((client?.user?.tag + " (" + this.GetUserTag(client.user) + ")") ?? "Unknown") + "]: " + data.timeout + "ms\n" + data.method.toUpperCase() + " " + data.path, webhook, "https://prismrust.com/public/rate_limit.png", "Rate Limits");
+    SendWebhookMessage("[" + ((client?.user?.tag + " (" + GetUserTag(client.user) + ")") ?? "Unknown") + "]: " + data.timeout + "ms\n" + data.method.toUpperCase() + " " + data.path, webhook, "https://prismrust.com/public/rate_limit.png", "Rate Limits");
 }
 
 export function LogRejection(error: Error | string, client: Discord.Client, webhook: string) {
@@ -238,7 +239,7 @@ export function LogRejection(error: Error | string, client: Discord.Client, webh
     console.log(error);
 
     if (!temp.includes("AbortError")) {
-        this.SendWebhookMessage(msg, webhook, client?.user?.avatarURL() ?? "https://i.stack.imgur.com/bJ120.png", client?.user?.username || "Utils");
+        SendWebhookMessage(msg, webhook, client?.user?.avatarURL() ?? "https://i.stack.imgur.com/bJ120.png", client?.user?.username || "Utils");
     }
 }
 
@@ -249,7 +250,7 @@ export function LogException(error: Error | string, client: Discord.Client, webh
     const image = client?.user?.avatarURL() ?? "https://i.stack.imgur.com/bJ120.png";
     const msg = "Uncaught Exception: " + (error instanceof Error ? error.message + "\n" + error.stack : error);
     
-    this.SendWebhookMessage(msg, webhook, image, user);
+    SendWebhookMessage(msg, webhook, image, user);
 }
 
 export function IsPublicChannel(channel: Discord.TextChannel) {
