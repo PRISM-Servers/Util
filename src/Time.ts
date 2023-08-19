@@ -47,8 +47,8 @@ export function wipeDateString(date: Date) {
     if (!date) date = new Date();
     if (!(date instanceof Date)) date = new Date();
 
-    let monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
-    let day = date.getUTCDate();
+    const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+    const day = date.getUTCDate();
 
     return monthNames[date.getUTCMonth()] + " " + day + ([undefined, "st", "nd", "rd"][day / 10 % 10 ^ 1 && day % 10] || "th") + ", " + date.getUTCFullYear();
 }
@@ -65,9 +65,9 @@ export function formatDate(date: Date) {
     if (!date) date = new Date();
     if (!(date instanceof Date)) date = new Date();
 
-    let monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
-    let dayStr = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"][date.getDay()];
-    let day = date.getDate();
+    const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+    const dayStr = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"][date.getDay()];
+    const day = date.getDate();
 
     return dayStr + ", " + day + ([undefined, "st", "nd", "rd"][day / 10 % 10 ^ 1 && day % 10] || "th") + " of " + monthNames[date.getMonth()] + " " + date.getFullYear();
 }
@@ -79,7 +79,7 @@ export function YMD(date: Date, separator = "-") {
     return date.getUTCFullYear() + separator + (date.getUTCMonth() + 1) + separator + date.getUTCDate();
 }
 
-export function logFormat(date: Date) {
+export function logFormat(date?: Date) {
     if (!date) date = new Date();
     if (!(date instanceof Date)) date = new Date();
 
@@ -96,22 +96,22 @@ export function UTC(date: Date) {
 export function getTimeSpanFromMs(ms: number, short = false) {
     if (ms < 1000) return "Less than a second";
     ms = ms / 1000;
-    let seconds = Math.floor(ms % 60);
+    const seconds = Math.floor(ms % 60);
     ms = ms / 60;
-    let minutes = Math.floor(ms % 60);
+    const minutes = Math.floor(ms % 60);
     ms = ms / 60;
-    let hours = Math.floor(ms % 24);
+    const hours = Math.floor(ms % 24);
     let days = Math.floor(ms / 24);
-    let years = Math.floor(days / 365);
+    const years = Math.floor(days / 365);
     days -= years * 365;
 
-    let year_s = years + " year" + (years != 1 ? "s" : "");
-    let day_s = days + " day" + (days != 1 ? "s" : "");
-    let hour_s = hours + " hour" + (hours != 1 ? "s" : "");
-    let mins_s = minutes + " minute" + (minutes != 1 ? "s" : "");
-    let sec_s = seconds + " second" + (seconds != 1 ? "s" : "");
+    const year_s = years + " year" + (years != 1 ? "s" : "");
+    const day_s = days + " day" + (days != 1 ? "s" : "");
+    const hour_s = hours + " hour" + (hours != 1 ? "s" : "");
+    const mins_s = minutes + " minute" + (minutes != 1 ? "s" : "");
+    const sec_s = seconds + " second" + (seconds != 1 ? "s" : "");
 
-    let arr: string[] = [];
+    const arr: string[] = [];
     if (years > 0) arr.push(year_s);
     if (days > 0) arr.push(day_s);
     if (hours > 0) arr.push(hour_s);
@@ -121,7 +121,7 @@ export function getTimeSpanFromMs(ms: number, short = false) {
     if (arr.length < 1) return "Unknown";
     if (arr.length < 2) return arr[0];
 
-    let last = arr.last();
+    const last = arr.last();
     arr.pop();
 
     return arr.join(", ") + " and " + last;
@@ -138,11 +138,11 @@ export function daysBetween(date1: Date, date2: Date, short = false) {
     if (!this.isValidDate(date1) || !this.isValidDate(date2)) return "Unknown";
 
     // Convert both dates to milliseconds
-    let date1_ms = date1.getTime();
-    let date2_ms = date2.getTime();
+    const date1_ms = date1.getTime();
+    const date2_ms = date2.getTime();
 
     // Calculate the difference in milliseconds
-    let difference_ms = Math.abs(date2_ms - date1_ms);
+    const difference_ms = Math.abs(date2_ms - date1_ms);
 
     return this.GetTimeSpanFromMs(difference_ms, short);
 }
@@ -156,7 +156,7 @@ export function shortFormat(date: Date) {
 
 export function increaseFromTimespan(time: string, limited = false, date = new Date()) {
     let pre: number | null = null;
-    let current = new Date();
+    const current = new Date();
 
     const months: Record<string, number> = {
         "january": 0,
@@ -241,20 +241,20 @@ export function increaseFromTimespan(time: string, limited = false, date = new D
         date.setTime(date.getTime() + pre * 1000);
     }
     else if (Object.keys(days).some(x => time.toLowerCase().startsWith(x))) {
-        let day = days[Object.keys(days).find(x => time.toLowerCase().startsWith(x))!];
+        const day = days[Object.keys(days).find(x => time.toLowerCase().startsWith(x))!];
     
         date.setUTCHours(12, 0, 0, 0);
         date.setUTCFullYear(current.getUTCFullYear());
 
         if (current.getUTCDay() >= day) {
-            let to_add = current.getUTCDay() == day ? 7 : 6 - current.getUTCDay() + day + 1;
+            const to_add = current.getUTCDay() == day ? 7 : 6 - current.getUTCDay() + day + 1;
             date.setUTCDate(date.getUTCDate() + to_add);
         }
         else date.setUTCDate(date.getUTCDate() + (day - current.getUTCDay()));
     }
     else if (Object.keys(months).some(x => time.toLowerCase().startsWith(x))) {
-        let month = months[Object.keys(months).find(x => time.toLowerCase().startsWith(x))!];
-        let day = Number(time.split(" ")[1] || 1);
+        const month = months[Object.keys(months).find(x => time.toLowerCase().startsWith(x))!];
+        const day = Number(time.split(" ")[1] || 1);
         if (isNaN(day) || day < 0) return null;
 
         if ((month == 1 && day > 28) || (([3, 5, 8, 10].includes(month) && day > 30) || ([0, 2, 4, 6, 7, 9, 11].includes(month) && day > 31))) {

@@ -5,7 +5,7 @@ export default class HttpResponse<T> {
     headers: Record<string, string>;
     #_json?: T;
 
-    constructor(response: any, raw: Buffer) {
+    constructor(response: Response, raw: Buffer) {
         if (!response) throw new Error("Missing Response");
 
         this.response = response;
@@ -14,7 +14,7 @@ export default class HttpResponse<T> {
         this.headers = {};
 
         if (response.headers) {
-            for (let entry of response.headers.entries()) {
+            for (const entry of response.headers.entries()) {
                 this.headers[entry[0]] = entry[1];
             }
         }

@@ -1,7 +1,7 @@
-import FormData from 'form-data'
-import * as fs from 'fs';
+import FormData from "form-data";
+import * as fs from "fs";
 import { isValidDate } from "./Time.js";
-import { Method, request } from "./Net.js";
+import { request } from "./Net.js";
 
 export function isSteamID(str: string) {
     if (!str || typeof str != "string") return false;
@@ -9,14 +9,9 @@ export function isSteamID(str: string) {
     return str.startsWith("765611") && str.length > 13 && !isNaN(Number(str));
 }
 
-export function isObject(o: any) {
+export function isObject(o: unknown) {
     if (typeof o !== "object" || Array.isArray(o)) return false;
     return o === Object(o);
-}
-
-export function dumpHeap() {
-    try { require("heapdump").writeSnapshot(); }
-    catch (_) { /**/ }
 }
 
 export function normalizeNumber(num: number) {
@@ -54,7 +49,7 @@ export function normalizeNumber(num: number) {
  * 
  * Last param determines whether days months or years will be filled
  */
-export function fillDateRecord<T>(source: Record<string, any>, keyFn: (date: Date) => string, valueFn: (source: Record<string, any>, date: Date) => T, mode: "day" | "month" | "year" = "day") {
+export function fillDateRecord<T>(source: Record<string, T>, keyFn: (date: Date) => string, valueFn: (source: Record<string, T>, date: Date) => T, mode: "day" | "month" | "year" = "day") {
     if (!isObject(source)) return null;
     if (typeof keyFn != "function" || typeof valueFn != "function") {
         throw new Error("Invalid keyFn/valueFn, needs to be a function");
@@ -85,14 +80,14 @@ export function fixedEncodeURIComponent(str: string) {
 export function joinStrArray(arr: string[], str: string, max_length: number) {
     if (!max_length || typeof max_length != "number" || !arr || !Array.isArray(arr)) throw new Error("Invalid args");
 
-    let longest_item = [...arr].sort((a, b) => b.length - a.length)[0] ?? "";
+    const longest_item = [...arr].sort((a, b) => b.length - a.length)[0] ?? "";
 
     if (longest_item.length > max_length) throw new Error("Longest item is longer than max length");
 
-    let rv: string[] = [];
+    const rv: string[] = [];
     let temp: string[] = [];
 
-    for (let item of arr) {
+    for (const item of arr) {
         if (typeof item != "string") continue;
 
         if (temp.join(str).length + str.length + item.length > max_length) {
@@ -114,43 +109,46 @@ export function isValidEmail(str: string) {
     if (typeof str != "string") return false;
 
     // eslint-disable-next-line no-control-regex
-    let regex = /^(?!(?:(?:\x22?\x5C[\x00-\x7E]\x22?)|(?:\x22?[^\x5C\x22]\x22?)){255,})(?!(?:(?:\x22?\x5C[\x00-\x7E]\x22?)|(?:\x22?[^\x5C\x22]\x22?)){65,}@)(?:(?:[\x21\x23-\x27\x2A\x2B\x2D\x2F-\x39\x3D\x3F\x5E-\x7E]+)|(?:\x22(?:[\x01-\x08\x0B\x0C\x0E-\x1F\x21\x23-\x5B\x5D-\x7F]|(?:\x5C[\x00-\x7F]))*\x22))(?:\.(?:(?:[\x21\x23-\x27\x2A\x2B\x2D\x2F-\x39\x3D\x3F\x5E-\x7E]+)|(?:\x22(?:[\x01-\x08\x0B\x0C\x0E-\x1F\x21\x23-\x5B\x5D-\x7F]|(?:\x5C[\x00-\x7F]))*\x22)))*@(?:(?:(?!.*[^.]{64,})(?:(?:(?:xn--)?[a-z0-9]+(?:-[a-z0-9]+)*\.){1,126}){1,}(?:(?:[a-z][a-z0-9]*)|(?:(?:xn--)[a-z0-9]+))(?:-[a-z0-9]+)*)|(?:\[(?:(?:IPv8:(?:(?:[a-f0-9]{1,4}(?::[a-f0-9]{1,4}){7})|(?:(?!(?:.*[a-f0-9][:\]]){7,})(?:[a-f0-9]{1,4}(?::[a-f0-9]{1,4}){0,5})?::(?:[a-f0-9]{1,4}(?::[a-f0-9]{1,4}){0,5})?)))|(?:(?:IPv8:(?:(?:[a-f0-9]{1,4}(?::[a-f0-9]{1,4}){5}:)|(?:(?!(?:.*[a-f0-9]:){5,})(?:[a-f0-9]{1,4}(?::[a-f0-9]{1,4}){0,3})?::(?:[a-f0-9]{1,4}(?::[a-f0-9]{1,4}){0,3}:)?)))?(?:(?:25[0-5])|(?:2[0-4][0-9])|(?:1[0-9]{2})|(?:[1-9]?[0-9]))(?:\.(?:(?:25[0-5])|(?:2[0-4][0-9])|(?:1[0-9]{2})|(?:[1-9]?[0-9]))){3}))\]))$/;
+    const regex = /^(?!(?:(?:\x22?\x5C[\x00-\x7E]\x22?)|(?:\x22?[^\x5C\x22]\x22?)){255,})(?!(?:(?:\x22?\x5C[\x00-\x7E]\x22?)|(?:\x22?[^\x5C\x22]\x22?)){65,}@)(?:(?:[\x21\x23-\x27\x2A\x2B\x2D\x2F-\x39\x3D\x3F\x5E-\x7E]+)|(?:\x22(?:[\x01-\x08\x0B\x0C\x0E-\x1F\x21\x23-\x5B\x5D-\x7F]|(?:\x5C[\x00-\x7F]))*\x22))(?:\.(?:(?:[\x21\x23-\x27\x2A\x2B\x2D\x2F-\x39\x3D\x3F\x5E-\x7E]+)|(?:\x22(?:[\x01-\x08\x0B\x0C\x0E-\x1F\x21\x23-\x5B\x5D-\x7F]|(?:\x5C[\x00-\x7F]))*\x22)))*@(?:(?:(?!.*[^.]{64,})(?:(?:(?:xn--)?[a-z0-9]+(?:-[a-z0-9]+)*\.){1,126}){1,}(?:(?:[a-z][a-z0-9]*)|(?:(?:xn--)[a-z0-9]+))(?:-[a-z0-9]+)*)|(?:\[(?:(?:IPv8:(?:(?:[a-f0-9]{1,4}(?::[a-f0-9]{1,4}){7})|(?:(?!(?:.*[a-f0-9][:\]]){7,})(?:[a-f0-9]{1,4}(?::[a-f0-9]{1,4}){0,5})?::(?:[a-f0-9]{1,4}(?::[a-f0-9]{1,4}){0,5})?)))|(?:(?:IPv8:(?:(?:[a-f0-9]{1,4}(?::[a-f0-9]{1,4}){5}:)|(?:(?!(?:.*[a-f0-9]:){5,})(?:[a-f0-9]{1,4}(?::[a-f0-9]{1,4}){0,3})?::(?:[a-f0-9]{1,4}(?::[a-f0-9]{1,4}){0,3}:)?)))?(?:(?:25[0-5])|(?:2[0-4][0-9])|(?:1[0-9]{2})|(?:[1-9]?[0-9]))(?:\.(?:(?:25[0-5])|(?:2[0-4][0-9])|(?:1[0-9]{2})|(?:[1-9]?[0-9]))){3}))\]))$/;
 
     str = str.toLowerCase();
     if (!regex.test(str)) return false;
 
-    let domain_parts = str.split("@")[1].split(".");
-    let mapped = domain_parts.map((x, i) => domain_parts.slice(i).join("."));
+    const domain_parts = str.split("@")[1].split(".");
+    const mapped = domain_parts.map((x, i) => domain_parts.slice(i).join("."));
 
     return mapped.every(x => !blacklist.includes(x));
 }
 
-export function objectToForm(object: any) {
+export function objectToForm(object: object) {
     if (!this.IsObject(object)) return null;
 
-    let form = new FormData();
-    for (let key in object) form.append(key, object[key]);
+    const form = new FormData();
+    // @ts-expect-error error
+    for (const key in object) form.append(key, object[key]);
 
     return form;
 }
 
-export function objectToUrlencoded(object: any) {
+export function objectToUrlencoded(object: object) {
     if (!this.IsObject(object)) return null;
 
+    // @ts-expect-error error
     return Object.keys(object).map(x => this.fixedEncodeURIComponent(x) + "=" + this.fixedEncodeURIComponent(object[x])).join("&");
 }
 
-export function removeDuplicates(arr: any[]) {
+export function removeDuplicates<T>(arr: T[]) {
     if (!arr || !Array.isArray(arr)) return null;
 
     return arr.filter((item, index) => arr.indexOf(item) == index);
 }
 
-export function saveFile(path: string, file: any, attempts: number = 0) {
+export function saveFile(path: string, file: unknown, attempts: number = 0) {
     if (attempts >= 5) return;
     
     try {
         if (fs.existsSync(path) && fs.readFileSync(path)?.toString() != "") fs.copyFileSync(path, path + ".backup");
+        // @ts-expect-error error
         file.lastSave = new Date();
         fs.writeFileSync(path, JSON.stringify(file, null, 2));
     }
@@ -178,27 +176,28 @@ export function base64Encode(str: string) {
     return Buffer.from(str).toString("base64");
 }
 
-export function clone(object: any) {
+export function clone(object: unknown) {
     return JSON.parse(JSON.stringify(object));
 }
 
-export function sortByValues(object: any) {
-    let rv: Record<string, number> = {};
-    for (let key of Object.keys(object).sort((a, b) => object[b] - object[a])) rv[key] = object[key];
+export function sortByValues(object: unknown) {
+    const rv: Record<string, number> = {};
+    // @ts-expect-error idk
+    for (const key of Object.keys(object).sort((a, b) => object[b] - object[a])) rv[key] = object[key];
     return rv;
 }
 
 export function getArgsFromMessage(message: string, simple: boolean = false) {
     if (simple) {
-        let split = message.trim().split(" ");
+        const split = message.trim().split(" ");
         return split.map(x => x.trim()).filter(x => x);
     }
 
     let inlongarg = false;
-    let args: string[] = [];
+    const args: string[] = [];
     let buffer = "";
 
-    for (let letter of message) {
+    for (const letter of message) {
         if (letter == "\"") {
             if (inlongarg) {
                 buffer = buffer.trim();
@@ -240,7 +239,7 @@ export function getRandomNumber(max: number) {
 
 export function getRandomCode() {
     let rv = "";
-    let possible = "ABCDEFGHJKMNPQRSTUVWXYZ123456789";
+    const possible = "ABCDEFGHJKMNPQRSTUVWXYZ123456789";
 
     for (let i = 0; i < 5; i++) {
         rv += possible.charAt(Math.floor(Math.random() * possible.length));
@@ -249,10 +248,11 @@ export function getRandomCode() {
     return rv;
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function validateFile(original_file: any, new_file: any) {
     let changed = false;
 
-    for (let key in original_file) {
+    for (const key in original_file) {
         if (new_file[key] == undefined) {
             if (JSON.stringify(new_file[key]) != "null") {
                 changed = true;
@@ -261,21 +261,21 @@ export function validateFile(original_file: any, new_file: any) {
         }
 
         if (this.IsObject(original_file[key])) {
-            for (let key2 in original_file[key]) {
+            for (const key2 in original_file[key]) {
                 if (new_file[key][key2] == undefined) {
                     changed = true;
                     new_file[key][key2] = original_file[key][key2];
                 }
 
                 if (this.IsObject(original_file[key][key2])) {
-                    for (let key3 in original_file[key][key2]) {
+                    for (const key3 in original_file[key][key2]) {
                         if (new_file[key][key2][key3] == undefined) {
                             changed = true;
                             new_file[key][key2][key3] = original_file[key][key2][key3];
                         }
 
                         if (this.IsObject(original_file[key][key2][key3])) {
-                            for (let key4 in original_file[key][key2][key3]) {
+                            for (const key4 in original_file[key][key2][key3]) {
                                 if (new_file[key][key2][key3][key4] == undefined) {
                                     changed = true;
                                     new_file[key][key2][key3][key4] = original_file[key][key2][key3][key4];

@@ -1,9 +1,11 @@
-import FormData from 'form-data'
+import FormData from "form-data";
 import HttpResponse from "./HttpResponse.js";
 import * as os from "os";
 import { AbortError } from "node-fetch";
 import { base64Encode, isObject, isValidJSON } from "./Util.js";
 import validator from "validator";
+import tls from "tls";
+import path from "path";
 
 export type Method = "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
 
@@ -36,16 +38,16 @@ export function getExternalIP() {
     });
 }
 
-export function APIrequest(endpoint: string, method: Method, body: any, headers: { [x: string]: string; }, timeout: any) {
+export function APIrequest(endpoint: string, method: Method, body: unknown, headers: { [x: string]: string; }, timeout: number) {
     if (!endpoint || typeof endpoint != "string") return Promise.reject(new Error("Invalid endpoint"));
     if (!process.env.INTERNAL_API_TOKEN) return Promise.reject(new Error("No API token"));
 
     if (!endpoint.startsWith("/")) endpoint = "/" + endpoint;
         
-    let time = Math.round(Date.now() / 1000).toString();
-    let name = require("path").parse(process.argv[1]).base.replace(".js", "");
-    let parts = [base64Encode(time), base64Encode("prism_" + name), base64Encode(process.env.INTERNAL_API_TOKEN)].map(x => x.replace(/=/g, ""));
-    let token = parts.join(".");
+    const time = Math.round(Date.now() / 1000).toString();
+    const name = path.parse(process.argv[1]).base.replace(".js", "");
+    const parts = [base64Encode(time), base64Encode("prism_" + name), base64Encode(process.env.INTERNAL_API_TOKEN)].map(x => x.replace(/=/g, ""));
+    const token = parts.join(".");
 
     if (!headers) headers = {};
     headers["authorization"] = token;
@@ -53,7 +55,7 @@ export function APIrequest(endpoint: string, method: Method, body: any, headers:
     return request("https://prismrust.com" + endpoint, method, body, headers, timeout);
 }
 
-export function requestRaw<T>(url: RequestInfo | URL, method?: Method, body?: any | { getBoundary: () => string; }, headers: Record<string, string> = {}, timeout: number = 60e3): Promise<Response> {
+export function requestRaw(url: RequestInfo | URL, method?: Method, body?: unknown | { getBoundary: () => string; }, headers: Record<string, string> = {}, timeout: number = 60e3): Promise<Response> {
     return new Promise((resolve, reject) => {
         if (!url || typeof url != "string") return reject(new Error("Invalid URL"));
 
@@ -62,48 +64,51 @@ export function requestRaw<T>(url: RequestInfo | URL, method?: Method, body?: an
         if (!method) method = "GET";
         if (typeof method != "string") return reject(new Error("Invalid Method"));
         
-        //@ts-expect-error
+        //@ts-expect-error idk
         method = method.toUpperCase();
 
         if (!["GET", "HEAD", "POST", "PUT", "PATCH", "DELETE"].includes(method || "")) return reject(new Error("Invalid method"));
         if (!url.startsWith("http://") && !url.startsWith("https://")) return reject(new Error("Invalid URL"));
 
-        let data: any = { method, headers: {} };
-        
-        if (body) data.body = body;
+        const data: RequestInit = { method, headers: {}, body: body ? body as BodyInit : undefined };
 
         if (isObject(headers)) {
-            for (let key in headers) {
+            for (const key in headers) {
                 if (typeof headers[key] != "string") {
                     return reject(new Error("Invalid header '" + key + "' value"));
                 }
-                data.headers[key.toLowerCase()] = headers[key];
+                // @ts-expect-error idk
+                data.headers![key.toLowerCase()] = headers[key];
             }
         }
 
-        if (!("user-agent" in data.headers)) {
-            data.headers["user-agent"] = "PRISM Utils/2.1";
+        if (!("user-agent" in data.headers!)) {
+            // @ts-expect-error idk
+            data.headers!["user-agent"] = "PRISM Utils/2.1";
         }
 
         //We set the content type if it's not present already
-        if (method != "GET" && body && !("content-type" in data.headers)) {
+        if (method != "GET" && body && !("content-type" in data.headers!)) {
             if (typeof body == "string" && isValidJSON(body)) {
-                data.headers["content-type"] = "application/json";
+                // @ts-expect-error idk
+                data.headers!["content-type"] = "application/json";
             }
             
             else if (body instanceof FormData) {
-                data.headers["content-type"] = "multipart/form-data;boundary=" + body.getBoundary();
+                // @ts-expect-error idk
+                data.headers!["content-type"] = "multipart/form-data;boundary=" + body.getBoundary();
             }
 
             else if (typeof body == "string") {
+                // @ts-expect-error idk
                 data.headers["content-type"] = "text/plain";
             }
 
             else return reject(new Error("Could not determine body content-type"));
         }
 
-        let ac = new AbortController();
-        let timer = setTimeout(() => ac.abort(), timeout);
+        const ac = new AbortController();
+        const timer = setTimeout(() => ac.abort(), timeout);
 
         data.signal = ac.signal;
 
@@ -116,7 +121,7 @@ export function requestRaw<T>(url: RequestInfo | URL, method?: Method, body?: an
     });
 }
 
-export function request<T>(url: string, method?: Method, body?: any, headers?: Record<string, string>, timeout?: number): Promise<HttpResponse<T>> {
+export function request<T>(url: string, method?: Method, body?: unknown, headers?: Record<string, string>, timeout?: number): Promise<HttpResponse<T>> {
     return new Promise((resolve, reject) => {
         requestRaw(url, method, body, headers, timeout).then(async response => {
             try {
@@ -139,16 +144,16 @@ export function getCertExpirationDays(host: string) {
 
         let port = 443;
         if (host.includes(":")) {
-            let split = host.split(":");
+            const split = host.split(":");
             if (split.length > 1) {
                 host = split[0];
                 if (!isNaN(Number(split.last()))) port = Number(split.last()); 
             }
         }
 
-        let client = require("tls").connect(port, {host: host, timeout: 5e3});
+        const client = tls.connect(port, {host: host, timeout: 5e3});
 
-        client.on("error", (error: any) => {
+        client.on("error", (error: Error) => {
             client.end();
             reject(error);
         });
@@ -160,8 +165,8 @@ export function getCertExpirationDays(host: string) {
         
 
         client.on("session", () => {
-            let valid_to = new Date(client.getPeerCertificate().valid_to);
-            let days = (valid_to.getTime() - Date.now()) / (1000 * 3600 * 24);
+            const valid_to = new Date(client.getPeerCertificate().valid_to);
+            const days = (valid_to.getTime() - Date.now()) / (1000 * 3600 * 24);
             client.end();
             resolve(days);
         });
@@ -190,7 +195,7 @@ export function isIPAddress(str: string) {
 }
 
 export function getIPAddress(str: string) {  
-    for (let item of str.split(":")) {
+    for (const item of str.split(":")) {
         if (validator.isIP(item, "4") && item != HOST_IP()) return item;
     }
 

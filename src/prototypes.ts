@@ -2,7 +2,7 @@ Array.prototype.remove = function(...item) {
     if (Array.isArray(item)) {
         let rv = true;
         
-        for (let i of item) {
+        for (const i of item) {
             if (this.includes(i)) {
                 this.splice(this.indexOf(i), 1);
             }
@@ -29,7 +29,7 @@ Array.prototype.last = function() {
 };
 
 Array.prototype.distinct = function() {
-    return this.filter((x: any, i: number) => this.indexOf(x) == i);
+    return this.filter((x: unknown, i: number) => this.indexOf(x) == i);
 };
 
 String.prototype.reverse = function() {
