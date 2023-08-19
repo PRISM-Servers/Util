@@ -3,7 +3,7 @@
         "module": "ESNext",
         "moduleResolution": "node",
         "target": "ES2015",
-        "lib": ["ESNext"],
+        "lib": ["ESNext", "DOM"],
         "jsx": "preserve",
         "declaration": true,
         "alwaysStrict": true,
