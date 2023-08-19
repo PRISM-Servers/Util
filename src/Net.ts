@@ -1,6 +1,6 @@
 import FormData from "form-data";
 import HttpResponse from "./HttpResponse.js";
-import * as os from "os";
+import { networkInterfaces } from "os";
 import fetch, { AbortError, BodyInit, RequestInit, Response } from "node-fetch";
 import { base64Encode, isObject, isValidJSON } from "./Util.js";
 import validator from "validator";
@@ -14,7 +14,7 @@ let ip = "";
 export function HOST_IP() {
     if (ip) return ip;
 
-    for (const iface of Object.values(os.networkInterfaces())) {
+    for (const iface of Object.values(networkInterfaces())) {
         if (!iface) {
             continue;
         }
@@ -187,7 +187,7 @@ export function CleanIP(IP: string) {
 }
 
 export function IsLocalhost(ip: string) {
-    return ip == "127.0.0.1" || ip == "::1" || ip == HOST_IP();
+    return ip == "127.0.0.1" || ip == "::1" || ip == HOST_IP() || process.env.LOCALHOST_IPS?.includes(ip);
 }
 
 export function isIPAddress(str: string) {

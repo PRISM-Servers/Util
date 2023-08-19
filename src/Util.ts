@@ -1,7 +1,7 @@
 import FormData from "form-data";
-import * as fs from "fs";
 import { isValidDate } from "./Time.js";
 import { request } from "./Net.js";
+import { copyFileSync, existsSync, readFileSync, writeFileSync } from "fs";
 
 export function isSteamID(str: string) {
     if (!str || typeof str != "string") return false;
@@ -147,10 +147,10 @@ export function saveFile(path: string, file: unknown, attempts: number = 0) {
     if (attempts >= 5) return;
     
     try {
-        if (fs.existsSync(path) && fs.readFileSync(path)?.toString() != "") fs.copyFileSync(path, path + ".backup");
+        if (existsSync(path) && readFileSync(path)?.toString() != "") copyFileSync(path, path + ".backup");
         // @ts-expect-error error
         file.lastSave = new Date();
-        fs.writeFileSync(path, JSON.stringify(file, null, 2));
+        writeFileSync(path, JSON.stringify(file, null, 2));
     }
 
     catch (_) {
