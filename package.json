@@ -7,7 +7,7 @@
   "type": "module",
   "scripts": {
     "prepublish": "npm run build",
-    "build": "tsc --skipLibCheck"
+    "build": "tsc"
   },
   "keywords": [],
   "author": "MBR-0001",

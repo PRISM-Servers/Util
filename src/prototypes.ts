@@ -39,3 +39,5 @@ String.prototype.reverse = function() {
 Number.prototype.isDecimal = function() {
     return this % 1 != 0;
 };
+
+export {};
