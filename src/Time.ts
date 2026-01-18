@@ -202,38 +202,30 @@ export function increaseFromTimespan(time: string, limited = false, date = new D
         "saturday": 6
     };
 
-    if (!isNaN(Number(time[0])) || time[0] == ".") {
-        const dictionary: Record<string, number> = {
-            "year": 31536000,
-            "month": 2592000,
-            "week": 604800,
-            "day": 86400,
-            "hour": 3600,
-            "minute": 60,
-            "second": 1,
-            "yr": 31536000,
-            "y": 31536000,
-            "mon": 2592000,
-            "mo": 2592000,
-            "w": 604800,
-            "d": 86400,
-            "hr": 3600,
-            "h": 3600,
-            "min": 60,
-            "m": 60,
-            "sec": 1,
-            "s": 1
-        };
+    // Parse combined numeric times like "1h10m", "1.5h", "2d4h30m", and also "1h15 min"
+    // longer unit names first so 'month'/'mon' match before single 'm'
+    const tokenRegex = /(\d*\.?\d+)\s*(years?|yrs?|y|months?|mons?|month|mon|mo|weeks?|w|days?|d|hours?|hrs?|h|minutes?|mins?|min|m|seconds?|secs?|sec|s)(?=\s|$|\d)/gi;
+    let match;
+    let totalSeconds = 0;
+    while ((match = tokenRegex.exec(time)) !== null) {
+        const num = parseFloat(match[1]);
+        const unit = match[2].toLowerCase();
+        let unitSeconds = 0;
+        if (unit.startsWith("y")) unitSeconds = 31536000;
+        else if (unit === "mon" || unit.startsWith("month") || unit === "mo") unitSeconds = 2592000;
+        else if (unit.startsWith("w")) unitSeconds = 604800;
+        else if (unit.startsWith("d")) unitSeconds = 86400;
+        else if (unit.startsWith("h")) unitSeconds = 3600;
+        else if (unit === "m" || unit.startsWith("min")) unitSeconds = 60;
+        else if (unit.startsWith("s")) unitSeconds = 1;
 
-        const f = Object.keys(dictionary).find(x => time.endsWith(x));
-        if (f) {
-            const num = Number(time.replace(f, "").trim());
-            if (!isNaN(num)) {
-                pre = num * dictionary[f];
-                if (pre < 7200 && limited) {
-                    return "Minimum is 2h";
-                }
-            }
+        totalSeconds += num * unitSeconds;
+    }
+
+    if (totalSeconds > 0) {
+        pre = totalSeconds;
+        if (pre < 7200 && limited) {
+            return "Minimum is 2h";
         }
     }
 
